@@ -39,7 +39,7 @@ class StockManager {
 // The NotificationManager class serves as an observer in the Observer pattern. It monitors stock levels and responds to low stock alerts.
 class NotificationManager {
   update(product) {
-    console.log(`NOTIFICATION: ${product} stocks are running low!`);
+    console.log(`Notification: ${product} stocks are running low!`);
   }
 }
 

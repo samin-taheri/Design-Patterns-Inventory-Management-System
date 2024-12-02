@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- Meta tag for responsive design -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Inventory Management</title>
+    <!-- Linking an external CSS file -->
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Inventory Management System</h1>
+    </header>
+
+    <!-- Add Product/Category Section -->
+    <div>
+      <h2>Add Product or Category</h2>
+      <label for="itemName">Name:</label>
+      <input
+        type="text"
+        id="itemName"
+        placeholder="Enter product/category name"
+      />
+      <label for="itemPrice">Price:</label>
+      <input type="number" id="itemPrice" placeholder="Enter product price" />
+      <button id="addProduct">Add Product</button>
+      <button id="addCategory">Add Category</button>
+    </div>
+
+    <!-- Update Stock Section -->
+    <div>
+      <h2>Update Stock</h2>
+      <label for="productName">Product Name:</label>
+      <input type="text" id="productName" placeholder="Enter product name" />
+      <label for="productStock">Stock Quantity:</label>
+      <input
+        type="number"
+        id="productStock"
+        placeholder="Enter stock quantity"
+      />
+      <button id="updateStock">Update Stock</button>
+    </div>
+
+    <!-- Layout Section -->
+    <div>
+      <h2>Warehouse Layout</h2>
+      <label for="layoutSection">Section Name:</label>
+      <input type="text" id="layoutSection" placeholder="Enter section name" />
+      <label for="layoutContent">Content:</label>
+      <input
+        type="text"
+        id="layoutContent"
+        placeholder="Enter section content"
+      />
+      <button id="updateLayoutBtn">Update Layout</button>
+      <div id="layoutDisplay"></div>
+    </div>
+
+    <!-- Inventory Section -->
+    <div>
+      <h2>Inventory</h2>
+      <div class="secondary-div" id="inventoryDisplay"></div>
+    </div>
+
+    <div>
+      <h2>Added Items</h2>
+      <ul id="addedItemsDisplay"></ul>
+    </div>
+
+    <!-- Notifications Section -->
+    <div>
+      <h2>Notifications</h2>
+      <ul id="notificationsDisplay"></ul>
+    </div>
+
+    <!-- JavaScript file that contains logic -->
+    <script type="module" src="./src/app.js"></script>
+  </body>
+</html>
