@@ -4,5 +4,6 @@
 
 **2. Observer Pattern:** The Observer pattern allows objects to subscribe and receive notifications when stock levels change.
 
+**3. Singleton Pattern:** The Singleton pattern ensures only one instance exists across the entire system (e.g warehouse layout manager).
 
-**To run the code:**  node src/index.js
+
