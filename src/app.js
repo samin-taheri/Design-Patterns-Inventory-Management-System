@@ -177,6 +177,9 @@ addProductBtn.addEventListener("click", () => {
     updateDisplay();
     nameInput.value = "";
     priceInput.value = "";
+
+    // Display success notification
+    Notiflix.Notify.success('Product added successfully!');
   }
 });
 
@@ -189,6 +192,8 @@ addCategoryBtn.addEventListener("click", () => {
     updateAddedItems(name);
     updateDisplay();
     categoryNameInput.value = "";
+    // Display success notification
+    Notiflix.Notify.success('Category added successfully!');
   }
 });
 
@@ -271,6 +276,8 @@ updateStockBtn.addEventListener("click", () => {
 
         // Optional: Show confirmation or feedback
         notificationsDisplay.innerHTML += `<li>Updated stock for ${selectedProduct.getName()}: ${quantity}</li>`;
+        // Display success notification
+        Notiflix.Notify.success(`${selectedProduct.getName()}'s stock updated successfully!`);
       }
     }
   }
