@@ -69,23 +69,49 @@
 
     <!-- Update Stock Section -->
     <div class="updateContainer">
-      <h2>Update Stock</h2>
-      <label for="updateCategory">Category Name:</label>
-      <select id="updateCategory" class="form-control mb-3">
-        <option value="">Select a Category</option>
-      </select>
-      <label for="updateProduct">Product Name:</label>
-      <select id="updateProduct" class="form-control mb-3">
-        <option value="">Select a Product</option>
-      </select>
-      <label for="productStock">Stock Quantity:</label>
-      <input
-        type="number"
-        id="productStock"
-        class="form-control mb-3"
-        placeholder="Enter stock quantity"
-      />
-      <button id="updateStock">Update Stock</button>
+      <div class="row">
+        <!-- Update Stock Section -->
+        <div class="col-md-6">
+          <h2>Update Stock</h2>
+          <label for="updateCategory">Category Name:</label>
+          <select id="updateCategory" class="form-control mb-3">
+            <option value="">Select a Category</option>
+          </select>
+          <label for="updateProduct">Product Name:</label>
+          <select id="updateProduct" class="form-control mb-3">
+            <option value="">Select a Product</option>
+          </select>
+          <label for="productStock">Stock Quantity:</label>
+          <input
+            type="number"
+            id="productStock"
+            class="form-control mb-3"
+            placeholder="Enter stock quantity"
+          />
+          <button id="updateStock">Update Stock</button>
+        </div>
+
+        <!-- Update Product Section -->
+        <div class="col-md-6">
+          <h2>Update Product</h2>
+          <label for="updateProductCategory">Category Name:</label>
+          <select id="updateProductCategory" class="form-control mb-3">
+            <option value="">Select a Category</option>
+          </select>
+          <label for="updateProductName">Product Name:</label>
+          <select id="updateProductName" class="form-control mb-3">
+            <option value="">Select a Product</option>
+          </select>
+          <label for="updateProductPrice">New Price:</label>
+          <input
+            type="number"
+            id="updateProductPrice"
+            class="form-control mb-3"
+            placeholder="Enter new price"
+          />
+          <button id="updateProductBtn">Update Product</button>
+        </div>
+      </div>
     </div>
 
     <!-- Layout Section -->

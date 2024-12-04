@@ -30,11 +30,11 @@ class Component {
 
 // Concrete class Component: Represents a leaf node in the composite structure.
 class Product extends Component {
-  constructor(name, price) {
+  constructor(name, price, stockQuantity) {
     super();
     this.name = name;
-    this.price = price;
-    this.stockQuantitys = [];
+    this.price = parseFloat(price);
+    this.stockQuantity = parseInt(stockQuantity);
   }
 
   // Overrides the getName() to return the name of the product.
@@ -42,9 +42,14 @@ class Product extends Component {
     return this.name;
   }
 
-  //Add stock quantity 
-  addStockQuantity(quantity){
-    this.stockQuantitys.push(quantity);
+  // Stok güncelleme metodu
+  updateStock(quantity) {
+    this.stockQuantity = parseInt(quantity);
+  }
+
+  // Stok ekleme metodu
+  addStock(quantity) {
+    this.stockQuantity += parseInt(quantity);
   }
 
   // Overrides the getPrice() to return the price of the product.

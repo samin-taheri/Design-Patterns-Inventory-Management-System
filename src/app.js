@@ -72,59 +72,56 @@ updateLayoutBtn.addEventListener("click", () => {
 });
 
 // Extending NotificationManager to update notifications dynamically.
-notificationManager.update = function (product) {
-  const notification = document.createElement("li"); // Creating a new list item.
-  notification.textContent = `Notification: ${product} stocks are running low!`; // Setting an alert message.
-  notificationsDisplay.appendChild(notification); // Adding the notification to its list.
+notificationManager.update = function (productName, quantity) {
+  const notification = document.createElement("li");
+  notification.textContent = `Stock Update: ${productName}'s stock quantity is now ${quantity}`;
+  notificationsDisplay.appendChild(notification);
 };
 
 // Function to display inventory in a table format
 function displayInventory(category, container) {
-  container.innerHTML = ""; // Clear the existing content in the table body
+  container.innerHTML = "";
 
-  category.components.forEach((component) => {
+  category.components.forEach(component => {
     if (component instanceof Category) {
-      // Loop through the products in the category
-      component.components.forEach((product) => {
+      component.components.forEach(product => {
         if (product instanceof Product) {
-          const row = document.createElement("tr"); // Create a new table row
+          const row = document.createElement("tr");
 
-          // Category Name cell
+          // Kategori adı
           const categoryNameCell = document.createElement("td");
           categoryNameCell.textContent = component.getName();
           row.appendChild(categoryNameCell);
 
-          // Product Name cell
+          // Ürün adı
           const productNameCell = document.createElement("td");
           productNameCell.textContent = product.getName();
           row.appendChild(productNameCell);
 
-          // Price cell
+          // Fiyat
           const priceCell = document.createElement("td");
           priceCell.textContent = `$${product.getPrice()}`;
           row.appendChild(priceCell);
 
-          // Stock Quantity cell
+          // Stok miktarı
           const stockQuantityCell = document.createElement("td");
-          const totalStock = product.stockQuantitys.reduce((a, b) => a + b, 0); // Sum up stock quantities
-          stockQuantityCell.textContent = totalStock;
+          stockQuantityCell.textContent = product.stockQuantity || 0; // Eğer undefined ise 0 göster
           row.appendChild(stockQuantityCell);
 
-          // Actions cell with Remove button
+          // İşlemler
           const actionCell = document.createElement("td");
           const removeButton = document.createElement("button");
           removeButton.textContent = "Remove";
           removeButton.className = "btn btn-danger btn-sm";
           removeButton.addEventListener("click", () => {
-            component.remove(product); // Remove product from the category
-            // Display success notification
+            component.remove(product);
             Notiflix.Notify.success('Product removed successfully!');
-            displayInventory(category, container); // Refresh the table
+            displayInventory(category, container);
           });
           actionCell.appendChild(removeButton);
           row.appendChild(actionCell);
 
-          container.appendChild(row); // Append the row to the table body
+          container.appendChild(row);
         }
       });
     }
@@ -139,18 +136,21 @@ function updateDisplay() {
   displayLayout();
   populateCategoryDropdown(); // Update category dropdown
   populateCategoryAndProductDropdowns(); // Update stock category and product dropdown
+  populateProductUpdateDropdowns(); // Yeni eklenen
   displayCategoryTable();
 }
 
 // Function to populate category dropdown
 function populateCategoryDropdown() {
-  productCategorySelect.innerHTML = ""; // Clear existing options
-  warehouse.components.forEach((component) => {
+  const productCategorySelect = document.getElementById("productCategory");
+  productCategorySelect.innerHTML = "<option value=''>Select Category</option>";
+  
+  warehouse.components.forEach(component => {
     if (component instanceof Category) {
       const option = document.createElement("option");
       option.value = component.getName();
       option.textContent = component.getName();
-      productCategorySelect.appendChild(option); // Add category to dropdown
+      productCategorySelect.appendChild(option);
     }
   });
 }
@@ -195,44 +195,40 @@ function displayCategoryTable() {
 
 // Listener for adding a new product.
 addProductBtn.addEventListener("click", () => {
-  const nameInput = document.getElementById("itemName"); // Get product name input
-  const priceInput = document.getElementById("itemPrice"); // Get product price input
-  const quantityInput = document.getElementById("itemQuantity"); // Get product quantity input
-  const selectedCategoryName = productCategorySelect.value; // Get selected category from dropdown
+  const nameInput = document.getElementById("itemName");
+  const priceInput = document.getElementById("itemPrice");
+  const quantityInput = document.getElementById("itemQuantity");
+  const selectedCategoryName = document.getElementById("productCategory").value;
 
-  const name = nameInput.value.trim(); // Get product name
-  const price = parseFloat(priceInput.value); // Parse price as float
-  const quantity = parseInt(quantityInput.value, 10); // Parse quantity as integer
+  const name = nameInput.value.trim();
+  const price = parseFloat(priceInput.value);
+  const quantity = parseInt(quantityInput.value, 10);
 
-  // Ensure all inputs are valid
   if (name && !isNaN(price) && !isNaN(quantity) && selectedCategoryName) {
-    // Create a new product
-    const product = new Product(name, price);
-    product.addStockQuantity(quantity); // Add the stock quantity to the product
-
-    // Find the selected category
+    // Yeni Product oluşturma şeklini güncelliyoruz
+    const product = new Product(name, price, quantity);
+    
+    // Kategoriyi bul
     const selectedCategory = warehouse.components.find(
-      (component) =>
-        component instanceof Category && component.getName() === selectedCategoryName
+      component => component instanceof Category && 
+      component.getName() === selectedCategoryName
     );
 
     if (selectedCategory) {
-      selectedCategory.add(product); // Add product to the category
+      selectedCategory.add(product);
+      
+      // UI'ı güncelle
+      updateDisplay();
+
+      // Input alanlarını temizle
+      nameInput.value = "";
+      priceInput.value = "";
+      quantityInput.value = "";
+
+      Notiflix.Notify.success('Product added successfully!');
     }
-
-    // Update UI
-    updateDisplay(); // Refresh display
-
-    // Clear inputs
-    nameInput.value = "";
-    priceInput.value = "";
-    quantityInput.value = "";
-
-    // Display success notification
-    Notiflix.Notify.success('Product added successfully!');
   } else {
-    // Display error notification if inputs are invalid
-    Notiflix.Notify.failure('Please fill all fields correctly!');
+    Notiflix.Notify.failure('Please fill in all fields correctly!');
   }
 });
 
@@ -295,54 +291,147 @@ function populateCategoryAndProductDropdowns() {
 
 // Listener for updating the stock of a product.
 updateStockBtn.addEventListener("click", () => {
-  const categorySelect = document.getElementById("updateCategory"); // Get category dropdown
-  const productSelect = document.getElementById("updateProduct"); // Get product dropdown
-  const quantityInput = document.getElementById("productStock"); // Get stock quantity input
+  const categorySelect = document.getElementById("updateCategory");
+  const productSelect = document.getElementById("updateProduct");
+  const quantityInput = document.getElementById("productStock");
 
-  const selectedCategoryName = categorySelect.value.trim(); // Get selected category name
-  const selectedProductName = productSelect.value.trim(); // Get selected product name
-  const quantity = parseInt(quantityInput.value, 10); // Get quantity as integer
+  const selectedCategoryName = categorySelect.value.trim();
+  const selectedProductName = productSelect.value.trim();
+  const quantity = parseInt(quantityInput.value, 10);
 
   if (selectedCategoryName && selectedProductName && !isNaN(quantity)) {
-    // Find the selected category
     const selectedCategory = warehouse.components.find(
-      (component) =>
-        component instanceof Category && component.getName() === selectedCategoryName
+      component => component instanceof Category && 
+      component.getName() === selectedCategoryName
     );
 
     if (selectedCategory) {
-      // Find the selected product in the category
       const selectedProduct = selectedCategory.components.find(
-        (component) =>
-          component instanceof Product && component.getName() === selectedProductName
+        component => component instanceof Product && 
+        component.getName() === selectedProductName
       );
 
       if (selectedProduct) {
-        // Update stock using StockManager
+        // Stok miktarını güncelle
+        selectedProduct.updateStock(quantity);
+        
+        // StockManager'ı kullanarak notification'ı tetikle
         stockManager.updateStock(selectedProduct.getName(), quantity);
-        // Clear inputs after updating
+        
+        // UI'ı güncelle
+        updateDisplay();
+        
+        // Input alanlarını temizle
         categorySelect.value = "";
         productSelect.innerHTML = "<option value=''>Select a Product</option>";
         quantityInput.value = "";
 
-        // Optional: Show confirmation or feedback
-        notificationsDisplay.innerHTML += `<li>Updated stock for ${selectedProduct.getName()}: ${quantity}</li>`;
-        // Display success notification
         Notiflix.Notify.success(`${selectedProduct.getName()}'s stock updated successfully!`);
       }
     }
+  } else {
+    Notiflix.Notify.failure('Please fill in all fields correctly!');
   }
 });
 
 // Add initial data to the warehouse for demo.
 const technology = new Category("Technology");
-const computer = new Product("Computer", 1000);
-const phone = new Product("Phone", 700);
+const computer = new Product("Computer", 1000, 5);
+const phone = new Product("Phone", 700, 10);
 technology.add(computer);
 technology.add(phone);
 warehouse.add(technology);
-computer.addStockQuantity(5);
-phone.addStockQuantity(10);
+
+// Product güncelleme için dropdown populate fonksiyonu
+function populateProductUpdateDropdowns() {
+    const categorySelect = document.getElementById("updateProductCategory");
+    const productSelect = document.getElementById("updateProductName");
+
+    // Clear existing options
+    categorySelect.innerHTML = "<option value=''>Select a Category</option>";
+    productSelect.innerHTML = "<option value=''>Select a Product</option>";
+
+    // Populate categories
+    warehouse.components.forEach((component) => {
+        if (component instanceof Category) {
+            const categoryOption = document.createElement("option");
+            categoryOption.value = component.getName();
+            categoryOption.textContent = component.getName();
+            categorySelect.appendChild(categoryOption);
+        }
+    });
+
+    // Add event listener to populate products when a category is selected
+    categorySelect.addEventListener("change", () => {
+        const selectedCategoryName = categorySelect.value;
+        productSelect.innerHTML = "<option value=''>Select a Product</option>";
+
+        if (selectedCategoryName) {
+            const selectedCategory = warehouse.components.find(
+                (component) =>
+                    component instanceof Category && component.getName() === selectedCategoryName
+            );
+
+            if (selectedCategory) {
+                selectedCategory.components.forEach((component) => {
+                    if (component instanceof Product) {
+                        const productOption = document.createElement("option");
+                        productOption.value = component.getName();
+                        productOption.textContent = component.getName();
+                        productSelect.appendChild(productOption);
+                    }
+                });
+            }
+        }
+    });
+}
+
+// Update Product butonu için event listener
+document.getElementById('updateProductBtn').addEventListener('click', () => {
+    const categorySelect = document.getElementById("updateProductCategory");
+    const productSelect = document.getElementById("updateProductName");
+    const priceInput = document.getElementById("updateProductPrice");
+
+    const selectedCategoryName = categorySelect.value.trim();
+    const selectedProductName = productSelect.value.trim();
+    const newPrice = parseFloat(priceInput.value);
+
+    if (selectedCategoryName && selectedProductName && !isNaN(newPrice)) {
+        const selectedCategory = warehouse.components.find(
+            component => component instanceof Category && 
+            component.getName() === selectedCategoryName
+        );
+
+        if (selectedCategory) {
+            const selectedProduct = selectedCategory.components.find(
+                component => component instanceof Product && 
+                component.getName() === selectedProductName
+            );
+
+            if (selectedProduct) {
+                // Ürün fiyatını güncelle
+                selectedProduct.price = newPrice;
+                
+                // Notification oluştur
+                const notification = document.createElement("li");
+                notification.textContent = `Product Update: ${selectedProduct.getName()}'s price updated to $${newPrice}`;
+                notificationsDisplay.appendChild(notification);
+                
+                // UI'ı güncelle
+                updateDisplay();
+                
+                // Input alanlarını temizle
+                categorySelect.value = "";
+                productSelect.innerHTML = "<option value=''>Select a Product</option>";
+                priceInput.value = "";
+
+                Notiflix.Notify.success(`${selectedProduct.getName()}'s price updated successfully!`);
+            }
+        }
+    } else {
+        Notiflix.Notify.failure('Please fill in all fields correctly!');
+    }
+});
 
 // Display the inventory.
 updateDisplay();
