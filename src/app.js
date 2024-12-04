@@ -64,6 +64,8 @@ updateLayoutBtn.addEventListener("click", () => {
   const content = layoutContentInput.value; // Getting section content.
   if (section && content) {
     layoutManager.updateSection(section, content); // Updating the layout.
+    // Display success notification
+    Notiflix.Notify.success('Layout updated successfully!');
     displayLayout(); // Refreshing the layout display.
     layoutSectionInput.value = ""; // Clearing inputs.
     layoutContentInput.value = "";
@@ -110,6 +112,8 @@ function displayInventory(category, container) {
           removeButton.className = "btn btn-danger btn-sm";
           removeButton.addEventListener("click", () => {
             component.remove(product); // Remove product from the category
+            // Display success notification
+            Notiflix.Notify.success('Product removed successfully!');
             displayInventory(category, container); // Refresh the table
           });
           actionCell.appendChild(removeButton);
