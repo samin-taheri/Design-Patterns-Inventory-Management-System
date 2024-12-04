@@ -150,7 +150,7 @@ function populateCategoryDropdown() {
   });
 }
 
-// Function to update the added items table
+// Function to display the categories table
 function displayCategoryTable() {
   const addedItemsDisplay = document.getElementById("categoryDisplay"); // Get table body
   addedItemsDisplay.innerHTML = ""; // Clear the table
