@@ -21,6 +21,10 @@ const addProductBtn = document.getElementById("addProduct");
 const addCategoryBtn = document.getElementById("addCategory");
 const updateStockBtn = document.getElementById("updateStock");
 
+// Additional DOM for new functionality
+const productCategorySelect = document.getElementById("productCategory"); // Dropdown for category selection
+const categoryNameInput = document.getElementById("categoryName"); // Input for adding new category
+
 // An instance of NotificationManager to respond to stock notifications.
 const notificationManager = new NotificationManager();
 
@@ -73,22 +77,49 @@ notificationManager.update = function (product) {
   notificationsDisplay.appendChild(notification); // Adding the notification to its list.
 };
 
-// Function to display inventory recursively.
+// Function to display inventory in a table format
 function displayInventory(category, container) {
-  const ul = document.createElement("ul"); // Creating a new list.
-  ul.innerHTML = `<strong>${category.getName()}</strong>`; // Displaying the category name.
+  container.innerHTML = ""; // Clear the existing content in the table body
+
   category.components.forEach((component) => {
     if (component instanceof Category) {
-      // If the component is a category, call displayInventory.
-      displayInventory(component, ul);
-    } else {
-      // else, create a list with item details.
-      const li = document.createElement("li");
-      li.textContent = `${component.getName()} - $${component.getPrice()}`;
-      ul.appendChild(li); // Adding the product to the list.
+      // Loop through the products in the category
+      component.components.forEach((product) => {
+        if (product instanceof Product) {
+          const row = document.createElement("tr"); // Create a new table row
+
+          // Category Name cell
+          const categoryNameCell = document.createElement("td");
+          categoryNameCell.textContent = component.getName();
+          row.appendChild(categoryNameCell);
+
+          // Product Name cell
+          const productNameCell = document.createElement("td");
+          productNameCell.textContent = product.getName();
+          row.appendChild(productNameCell);
+
+          // Price cell
+          const priceCell = document.createElement("td");
+          priceCell.textContent = `$${product.getPrice()}`;
+          row.appendChild(priceCell);
+
+          // Actions cell with Remove button
+          const actionCell = document.createElement("td");
+          const removeButton = document.createElement("button");
+          removeButton.textContent = "Remove";
+          removeButton.className = "btn btn-danger btn-sm";
+          removeButton.addEventListener("click", () => {
+            component.remove(product); // Remove product from the category
+            displayInventory(category, container); // Refresh the table
+          });
+          actionCell.appendChild(removeButton);
+          row.appendChild(actionCell);
+
+          container.appendChild(row); // Append the row to the table body
+        }
+      });
     }
   });
-  container.appendChild(ul); // Adding the list to the parent container.
 }
 
 // Function to update the inventory display.
@@ -97,6 +128,21 @@ function updateDisplay() {
 
   displayInventory(warehouse, inventoryDisplay); // Rebuilding the display with updated state.
   displayLayout();
+  populateCategoryDropdown(); // Update category dropdown
+  populateCategoryAndProductDropdowns(); // Update stock category and product dropdown
+}
+
+// Function to populate category dropdown
+function populateCategoryDropdown() {
+  productCategorySelect.innerHTML = ""; // Clear existing options
+  warehouse.components.forEach((component) => {
+    if (component instanceof Category) {
+      const option = document.createElement("option");
+      option.value = component.getName();
+      option.textContent = component.getName();
+      productCategorySelect.appendChild(option); // Add category to dropdown
+    }
+  });
 }
 
 // Function to update the "Added Items" section.
@@ -112,21 +158,23 @@ function updateAddedItems(name, price = null) {
 
 // Listener for adding a new product.
 addProductBtn.addEventListener("click", () => {
-  // Fetching input elements.
   const nameInput = document.getElementById("itemName");
   const priceInput = document.getElementById("itemPrice");
+  const selectedCategoryName = productCategorySelect.value;
 
-  // Getting the values from the input fields.
-  const name = nameInput.value.trim(); // Ensure no extra spaces.
+  const name = nameInput.value.trim();
   const price = parseFloat(priceInput.value);
 
-  // Proceed if the input is valid.
-  if (name && !isNaN(price)) {
-    const product = new Product(name, price); // Creating a new Product instance.
-    warehouse.add(product); // Adding the product to the warehouse.
-    updateAddedItems(name, price); // Updating the related section.
-    updateDisplay(); // Updating the display.
-    // Clearing the input fields after adding the product.
+  if (name && !isNaN(price) && selectedCategoryName) {
+    const product = new Product(name, price);
+    const selectedCategory = warehouse.components.find(
+      (component) => component instanceof Category && component.getName() === selectedCategoryName
+    );
+    if (selectedCategory) {
+      selectedCategory.add(product);
+    }
+    updateAddedItems(name, price);
+    updateDisplay();
     nameInput.value = "";
     priceInput.value = "";
   }
@@ -134,48 +182,106 @@ addProductBtn.addEventListener("click", () => {
 
 // Listener for adding a new category.
 addCategoryBtn.addEventListener("click", () => {
-  // Fetching the input elements.
-  const nameInput = document.getElementById("itemName");
-  const priceInput = document.getElementById("itemPrice");
-
-  // Getting the value from the input field.
-  const name = nameInput.value.trim(); // Ensure no extra spaces.
-  // Proceed if the input is valid.
+  const name = categoryNameInput.value.trim();
   if (name) {
     const category = new Category(name);
-    warehouse.add(category); // Adding the category to the warehouse.
-    updateAddedItems(name); // Updating the related section.
-    updateDisplay(); // Updating the display.
-    // Clearing the input fields after adding the product.
-    nameInput.value = "";
-    priceInput.value = "";
+    warehouse.add(category);
+    updateAddedItems(name);
+    updateDisplay();
+    categoryNameInput.value = "";
   }
 });
+
+// Function to populate both category and product dropdowns
+function populateCategoryAndProductDropdowns() {
+  const categorySelect = document.getElementById("updateCategory"); // Get category dropdown
+  const productSelect = document.getElementById("updateProduct"); // Get product dropdown
+
+  // Clear existing options
+  categorySelect.innerHTML = "<option value=''>Select a Category</option>";
+  productSelect.innerHTML = "<option value=''>Select a Product</option>";
+
+  // Populate categories
+  warehouse.components.forEach((component) => {
+    if (component instanceof Category) {
+      const categoryOption = document.createElement("option");
+      categoryOption.value = component.getName();
+      categoryOption.textContent = component.getName();
+      categorySelect.appendChild(categoryOption);
+    }
+  });
+
+  // Add event listener to populate products when a category is selected
+  categorySelect.addEventListener("change", () => {
+    const selectedCategoryName = categorySelect.value;
+    productSelect.innerHTML = "<option value=''>Select a Product</option>"; // Reset product dropdown
+
+    if (selectedCategoryName) {
+      const selectedCategory = warehouse.components.find(
+        (component) =>
+          component instanceof Category && component.getName() === selectedCategoryName
+      );
+
+      if (selectedCategory) {
+        selectedCategory.components.forEach((component) => {
+          if (component instanceof Product) {
+            const productOption = document.createElement("option");
+            productOption.value = component.getName();
+            productOption.textContent = component.getName();
+            productSelect.appendChild(productOption);
+          }
+        });
+      }
+    }
+  });
+}
 
 // Listener for updating the stock of a product.
 updateStockBtn.addEventListener("click", () => {
-  // Fetching the input elements
-  const nameInput = document.getElementById("productName");
-  const quantityInput = document.getElementById("productStock");
-  // Getting the values.
-  const name = nameInput.value.trim(); // Ensure no extra spaces
-  const quantity = parseInt(quantityInput.value, 10);
-  // Proceed if the input is valid.
-  if (name && !isNaN(quantity)) {
-    // Updating the stock.
-    stockManager.updateStock(name, quantity);
+  const categorySelect = document.getElementById("updateCategory"); // Get category dropdown
+  const productSelect = document.getElementById("updateProduct"); // Get product dropdown
+  const quantityInput = document.getElementById("productStock"); // Get stock quantity input
 
-    // Clearing the input fields after successful update.
-    nameInput.value = "";
-    quantityInput.value = "";
+  const selectedCategoryName = categorySelect.value.trim(); // Get selected category name
+  const selectedProductName = productSelect.value.trim(); // Get selected product name
+  const quantity = parseInt(quantityInput.value, 10); // Get quantity as integer
+
+  if (selectedCategoryName && selectedProductName && !isNaN(quantity)) {
+    // Find the selected category
+    const selectedCategory = warehouse.components.find(
+      (component) =>
+        component instanceof Category && component.getName() === selectedCategoryName
+    );
+
+    if (selectedCategory) {
+      // Find the selected product in the category
+      const selectedProduct = selectedCategory.components.find(
+        (component) =>
+          component instanceof Product && component.getName() === selectedProductName
+      );
+
+      if (selectedProduct) {
+        // Update stock using StockManager
+        stockManager.updateStock(selectedProduct.getName(), quantity);
+
+        // Clear inputs after updating
+        categorySelect.value = "";
+        productSelect.innerHTML = "<option value=''>Select a Product</option>";
+        quantityInput.value = "";
+
+        // Optional: Show confirmation or feedback
+        notificationsDisplay.innerHTML += `<li>Updated stock for ${selectedProduct.getName()}: ${quantity}</li>`;
+      }
+    }
   }
 });
+
+
 
 // Add initial data to the warehouse for demo.
 const technology = new Category("Technology");
 const computer = new Product("Computer", 1000);
 const phone = new Product("Phone", 700);
-// Adding the products to the categories.
 technology.add(computer);
 technology.add(phone);
 warehouse.add(technology);
