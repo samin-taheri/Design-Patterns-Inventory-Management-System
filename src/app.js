@@ -14,7 +14,6 @@ const updateLayoutBtn = document.getElementById("updateLayoutBtn"); // Button to
 // DOM Elements where data will be displayed.
 const inventoryDisplay = document.getElementById("inventoryDisplay");
 const notificationsDisplay = document.getElementById("notificationsDisplay");
-const addedItemsDisplay = document.getElementById("addedItemsDisplay");
 
 // Buttons for user interactions.
 const addProductBtn = document.getElementById("addProduct");
@@ -105,6 +104,12 @@ function displayInventory(category, container) {
           priceCell.textContent = `$${product.getPrice()}`;
           row.appendChild(priceCell);
 
+          // Stock Quantity cell
+          const stockQuantityCell = document.createElement("td");
+          const totalStock = product.stockQuantitys.reduce((a, b) => a + b, 0); // Sum up stock quantities
+          stockQuantityCell.textContent = totalStock;
+          row.appendChild(stockQuantityCell);
+
           // Actions cell with Remove button
           const actionCell = document.createElement("td");
           const removeButton = document.createElement("button");
@@ -190,27 +195,44 @@ function displayCategoryTable() {
 
 // Listener for adding a new product.
 addProductBtn.addEventListener("click", () => {
-  const nameInput = document.getElementById("itemName");
-  const priceInput = document.getElementById("itemPrice");
-  const selectedCategoryName = productCategorySelect.value;
+  const nameInput = document.getElementById("itemName"); // Get product name input
+  const priceInput = document.getElementById("itemPrice"); // Get product price input
+  const quantityInput = document.getElementById("itemQuantity"); // Get product quantity input
+  const selectedCategoryName = productCategorySelect.value; // Get selected category from dropdown
 
-  const name = nameInput.value.trim();
-  const price = parseFloat(priceInput.value);
+  const name = nameInput.value.trim(); // Get product name
+  const price = parseFloat(priceInput.value); // Parse price as float
+  const quantity = parseInt(quantityInput.value, 10); // Parse quantity as integer
 
-  if (name && !isNaN(price) && selectedCategoryName) {
+  // Ensure all inputs are valid
+  if (name && !isNaN(price) && !isNaN(quantity) && selectedCategoryName) {
+    // Create a new product
     const product = new Product(name, price);
+    product.addStockQuantity(quantity); // Add the stock quantity to the product
+
+    // Find the selected category
     const selectedCategory = warehouse.components.find(
-      (component) => component instanceof Category && component.getName() === selectedCategoryName
+      (component) =>
+        component instanceof Category && component.getName() === selectedCategoryName
     );
+
     if (selectedCategory) {
-      selectedCategory.add(product);
+      selectedCategory.add(product); // Add product to the category
     }
-    updateDisplay();
+
+    // Update UI
+    updateDisplay(); // Refresh display
+
+    // Clear inputs
     nameInput.value = "";
     priceInput.value = "";
+    quantityInput.value = "";
 
     // Display success notification
     Notiflix.Notify.success('Product added successfully!');
+  } else {
+    // Display error notification if inputs are invalid
+    Notiflix.Notify.failure('Please fill all fields correctly!');
   }
 });
 
@@ -298,7 +320,6 @@ updateStockBtn.addEventListener("click", () => {
       if (selectedProduct) {
         // Update stock using StockManager
         stockManager.updateStock(selectedProduct.getName(), quantity);
-
         // Clear inputs after updating
         categorySelect.value = "";
         productSelect.innerHTML = "<option value=''>Select a Product</option>";
@@ -320,6 +341,8 @@ const phone = new Product("Phone", 700);
 technology.add(computer);
 technology.add(phone);
 warehouse.add(technology);
+computer.addStockQuantity(5);
+phone.addStockQuantity(10);
 
 // Display the inventory.
 updateDisplay();

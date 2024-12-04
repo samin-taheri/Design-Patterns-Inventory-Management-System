@@ -34,11 +34,17 @@ class Product extends Component {
     super();
     this.name = name;
     this.price = price;
+    this.stockQuantitys = [];
   }
 
   // Overrides the getName() to return the name of the product.
   getName() {
     return this.name;
+  }
+
+  //Add stock quantity 
+  addStockQuantity(quantity){
+    this.stockQuantitys.push(quantity);
   }
 
   // Overrides the getPrice() to return the price of the product.
