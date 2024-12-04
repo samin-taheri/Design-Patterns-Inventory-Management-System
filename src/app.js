@@ -134,6 +134,7 @@ function updateDisplay() {
   displayLayout();
   populateCategoryDropdown(); // Update category dropdown
   populateCategoryAndProductDropdowns(); // Update stock category and product dropdown
+  displayCategoryTable();
 }
 
 // Function to populate category dropdown
@@ -149,15 +150,42 @@ function populateCategoryDropdown() {
   });
 }
 
-// Function to update the "Added Items" section.
-function updateAddedItems(name, price = null) {
-  const listItem = document.createElement("li"); // Creating a new list item.
-  if (price !== null) {
-    listItem.textContent = `Product: ${name} - $${price}`; // If the item is a product, display its name and price.
-  } else {
-    listItem.textContent = `Category: ${name}`; // else, display its name.
-  }
-  addedItemsDisplay.appendChild(listItem); // Adding the item to the related list.
+// Function to update the added items table
+function displayCategoryTable() {
+  const addedItemsDisplay = document.getElementById("categoryDisplay"); // Get table body
+  addedItemsDisplay.innerHTML = ""; // Clear the table
+
+  // Iterate through warehouse components
+  warehouse.components.forEach((component) => {
+    if (component instanceof Category) {
+      const row = document.createElement("tr"); // Create a new table row
+
+      // Category Name cell
+      const categoryNameCell = document.createElement("td");
+      categoryNameCell.textContent = component.getName();
+      row.appendChild(categoryNameCell);
+
+      // Total Price cell
+      const totalPriceCell = document.createElement("td");
+      totalPriceCell.textContent = `$${component.getPrice()}`; // Use getPrice() to calculate total price
+      row.appendChild(totalPriceCell);
+
+      // Action cell with Remove button
+      const actionCell = document.createElement("td");
+      const removeButton = document.createElement("button");
+      removeButton.textContent = "Remove";
+      removeButton.className = "btn btn-danger btn-sm";
+      removeButton.addEventListener("click", () => {
+        warehouse.remove(component); // Remove category from warehouse
+        updateDisplay(); // Update inventory and other related displays
+      });
+      actionCell.appendChild(removeButton);
+      row.appendChild(actionCell);
+
+      // Append the row to the table body
+      addedItemsDisplay.appendChild(row);
+    }
+  });
 }
 
 // Listener for adding a new product.
@@ -177,7 +205,6 @@ addProductBtn.addEventListener("click", () => {
     if (selectedCategory) {
       selectedCategory.add(product);
     }
-    updateAddedItems(name, price);
     updateDisplay();
     nameInput.value = "";
     priceInput.value = "";
@@ -193,7 +220,6 @@ addCategoryBtn.addEventListener("click", () => {
   if (name) {
     const category = new Category(name);
     warehouse.add(category);
-    updateAddedItems(name);
     updateDisplay();
     categoryNameInput.value = "";
     // Display success notification
@@ -286,8 +312,6 @@ updateStockBtn.addEventListener("click", () => {
     }
   }
 });
-
-
 
 // Add initial data to the warehouse for demo.
 const technology = new Category("Technology");

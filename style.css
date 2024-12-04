@@ -75,7 +75,7 @@ button:hover {
 .layoutContainer,
 .inventoryContainer,
 .notificationContainer,
-.addedContainer,
+.categoryContainer,
 .updateContainer {
   margin: 20px auto;
   width: calc(100% - 100px);
