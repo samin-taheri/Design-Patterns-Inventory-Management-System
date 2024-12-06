@@ -64,7 +64,7 @@ updateLayoutBtn.addEventListener("click", () => {
   if (section && content) {
     layoutManager.updateSection(section, content); // Updating the layout.
     // Display success notification
-    Notiflix.Notify.success('Layout updated successfully!');
+    Notiflix.Notify.success("Layout updated successfully!");
     displayLayout(); // Refreshing the layout display.
     layoutSectionInput.value = ""; // Clearing inputs.
     layoutContentInput.value = "";
@@ -78,44 +78,44 @@ notificationManager.update = function (productName, quantity) {
   notificationsDisplay.appendChild(notification);
 };
 
-// Function to display inventory in a table format
+// Function to display inventory in a table format.
 function displayInventory(category, container) {
   container.innerHTML = "";
 
-  category.components.forEach(component => {
+  category.components.forEach((component) => {
     if (component instanceof Category) {
-      component.components.forEach(product => {
+      component.components.forEach((product) => {
         if (product instanceof Product) {
           const row = document.createElement("tr");
 
-          // Kategori adı
+          // Category name.
           const categoryNameCell = document.createElement("td");
           categoryNameCell.textContent = component.getName();
           row.appendChild(categoryNameCell);
 
-          // Ürün adı
+          // Product name.
           const productNameCell = document.createElement("td");
           productNameCell.textContent = product.getName();
           row.appendChild(productNameCell);
 
-          // Fiyat
+          // Price.
           const priceCell = document.createElement("td");
           priceCell.textContent = `$${product.getPrice()}`;
           row.appendChild(priceCell);
 
-          // Stok miktarı
+          // Stock quantity.
           const stockQuantityCell = document.createElement("td");
-          stockQuantityCell.textContent = product.stockQuantity || 0; // Eğer undefined ise 0 göster
+          stockQuantityCell.textContent = product.stockQuantity || 0; // If undefined, display 0.
           row.appendChild(stockQuantityCell);
 
-          // İşlemler
+          // Operations.
           const actionCell = document.createElement("td");
           const removeButton = document.createElement("button");
           removeButton.textContent = "Remove";
           removeButton.className = "btn btn-danger btn-sm";
           removeButton.addEventListener("click", () => {
             component.remove(product);
-            Notiflix.Notify.success('Product removed successfully!');
+            Notiflix.Notify.success("Product removed successfully!");
             displayInventory(category, container);
           });
           actionCell.appendChild(removeButton);
@@ -144,8 +144,8 @@ function updateDisplay() {
 function populateCategoryDropdown() {
   const productCategorySelect = document.getElementById("productCategory");
   productCategorySelect.innerHTML = "<option value=''>Select Category</option>";
-  
-  warehouse.components.forEach(component => {
+
+  warehouse.components.forEach((component) => {
     if (component instanceof Category) {
       const option = document.createElement("option");
       option.value = component.getName();
@@ -205,19 +205,20 @@ addProductBtn.addEventListener("click", () => {
   const quantity = parseInt(quantityInput.value, 10);
 
   if (name && !isNaN(price) && !isNaN(quantity) && selectedCategoryName) {
-    // Yeni Product oluşturma şeklini güncelliyoruz
+    // We are updating the way to create a new Product.
     const product = new Product(name, price, quantity);
-    
-    // Kategoriyi bul
+
+    // Finding category.
     const selectedCategory = warehouse.components.find(
-      component => component instanceof Category && 
-      component.getName() === selectedCategoryName
+      (component) =>
+        component instanceof Category &&
+        component.getName() === selectedCategoryName
     );
 
     if (selectedCategory) {
       selectedCategory.add(product);
-      
-      // UI'ı güncelle
+
+      // Updating UI.
       updateDisplay();
 
       // Input alanlarını temizle
@@ -225,10 +226,10 @@ addProductBtn.addEventListener("click", () => {
       priceInput.value = "";
       quantityInput.value = "";
 
-      Notiflix.Notify.success('Product added successfully!');
+      Notiflix.Notify.success("Product added successfully!");
     }
   } else {
-    Notiflix.Notify.failure('Please fill in all fields correctly!');
+    Notiflix.Notify.failure("Please fill in all fields correctly!");
   }
 });
 
@@ -241,7 +242,7 @@ addCategoryBtn.addEventListener("click", () => {
     updateDisplay();
     categoryNameInput.value = "";
     // Display success notification
-    Notiflix.Notify.success('Category added successfully!');
+    Notiflix.Notify.success("Category added successfully!");
   }
 });
 
@@ -272,7 +273,8 @@ function populateCategoryAndProductDropdowns() {
     if (selectedCategoryName) {
       const selectedCategory = warehouse.components.find(
         (component) =>
-          component instanceof Category && component.getName() === selectedCategoryName
+          component instanceof Category &&
+          component.getName() === selectedCategoryName
       );
 
       if (selectedCategory) {
@@ -301,36 +303,40 @@ updateStockBtn.addEventListener("click", () => {
 
   if (selectedCategoryName && selectedProductName && !isNaN(quantity)) {
     const selectedCategory = warehouse.components.find(
-      component => component instanceof Category && 
-      component.getName() === selectedCategoryName
+      (component) =>
+        component instanceof Category &&
+        component.getName() === selectedCategoryName
     );
 
     if (selectedCategory) {
       const selectedProduct = selectedCategory.components.find(
-        component => component instanceof Product && 
-        component.getName() === selectedProductName
+        (component) =>
+          component instanceof Product &&
+          component.getName() === selectedProductName
       );
 
       if (selectedProduct) {
-        // Stok miktarını güncelle
+        // Updating stock quantity.
         selectedProduct.updateStock(quantity);
-        
-        // StockManager'ı kullanarak notification'ı tetikle
+
+        // Triggering notification using StockManager.
         stockManager.updateStock(selectedProduct.getName(), quantity);
-        
-        // UI'ı güncelle
+
+        // Updating UI.
         updateDisplay();
-        
-        // Input alanlarını temizle
+
+        // Clearing input fields.
         categorySelect.value = "";
         productSelect.innerHTML = "<option value=''>Select a Product</option>";
         quantityInput.value = "";
 
-        Notiflix.Notify.success(`${selectedProduct.getName()}'s stock updated successfully!`);
+        Notiflix.Notify.success(
+          `${selectedProduct.getName()}'s stock updated successfully!`
+        );
       }
     }
   } else {
-    Notiflix.Notify.failure('Please fill in all fields correctly!');
+    Notiflix.Notify.failure("Please fill in all fields correctly!");
   }
 });
 
@@ -344,93 +350,98 @@ warehouse.add(technology);
 
 // Product güncelleme için dropdown populate fonksiyonu
 function populateProductUpdateDropdowns() {
-    const categorySelect = document.getElementById("updateProductCategory");
-    const productSelect = document.getElementById("updateProductName");
+  const categorySelect = document.getElementById("updateProductCategory");
+  const productSelect = document.getElementById("updateProductName");
 
-    // Clear existing options
-    categorySelect.innerHTML = "<option value=''>Select a Category</option>";
+  // Clear existing options
+  categorySelect.innerHTML = "<option value=''>Select a Category</option>";
+  productSelect.innerHTML = "<option value=''>Select a Product</option>";
+
+  // Populate categories
+  warehouse.components.forEach((component) => {
+    if (component instanceof Category) {
+      const categoryOption = document.createElement("option");
+      categoryOption.value = component.getName();
+      categoryOption.textContent = component.getName();
+      categorySelect.appendChild(categoryOption);
+    }
+  });
+
+  // Add event listener to populate products when a category is selected
+  categorySelect.addEventListener("change", () => {
+    const selectedCategoryName = categorySelect.value;
     productSelect.innerHTML = "<option value=''>Select a Product</option>";
 
-    // Populate categories
-    warehouse.components.forEach((component) => {
-        if (component instanceof Category) {
-            const categoryOption = document.createElement("option");
-            categoryOption.value = component.getName();
-            categoryOption.textContent = component.getName();
-            categorySelect.appendChild(categoryOption);
-        }
-    });
+    if (selectedCategoryName) {
+      const selectedCategory = warehouse.components.find(
+        (component) =>
+          component instanceof Category &&
+          component.getName() === selectedCategoryName
+      );
 
-    // Add event listener to populate products when a category is selected
-    categorySelect.addEventListener("change", () => {
-        const selectedCategoryName = categorySelect.value;
-        productSelect.innerHTML = "<option value=''>Select a Product</option>";
-
-        if (selectedCategoryName) {
-            const selectedCategory = warehouse.components.find(
-                (component) =>
-                    component instanceof Category && component.getName() === selectedCategoryName
-            );
-
-            if (selectedCategory) {
-                selectedCategory.components.forEach((component) => {
-                    if (component instanceof Product) {
-                        const productOption = document.createElement("option");
-                        productOption.value = component.getName();
-                        productOption.textContent = component.getName();
-                        productSelect.appendChild(productOption);
-                    }
-                });
-            }
-        }
-    });
+      if (selectedCategory) {
+        selectedCategory.components.forEach((component) => {
+          if (component instanceof Product) {
+            const productOption = document.createElement("option");
+            productOption.value = component.getName();
+            productOption.textContent = component.getName();
+            productSelect.appendChild(productOption);
+          }
+        });
+      }
+    }
+  });
 }
 
-// Update Product butonu için event listener
-document.getElementById('updateProductBtn').addEventListener('click', () => {
-    const categorySelect = document.getElementById("updateProductCategory");
-    const productSelect = document.getElementById("updateProductName");
-    const priceInput = document.getElementById("updateProductPrice");
+// Event listener for Update Product button.
+document.getElementById("updateProductBtn").addEventListener("click", () => {
+  const categorySelect = document.getElementById("updateProductCategory");
+  const productSelect = document.getElementById("updateProductName");
+  const priceInput = document.getElementById("updateProductPrice");
 
-    const selectedCategoryName = categorySelect.value.trim();
-    const selectedProductName = productSelect.value.trim();
-    const newPrice = parseFloat(priceInput.value);
+  const selectedCategoryName = categorySelect.value.trim();
+  const selectedProductName = productSelect.value.trim();
+  const newPrice = parseFloat(priceInput.value);
 
-    if (selectedCategoryName && selectedProductName && !isNaN(newPrice)) {
-        const selectedCategory = warehouse.components.find(
-            component => component instanceof Category && 
-            component.getName() === selectedCategoryName
+  if (selectedCategoryName && selectedProductName && !isNaN(newPrice)) {
+    const selectedCategory = warehouse.components.find(
+      (component) =>
+        component instanceof Category &&
+        component.getName() === selectedCategoryName
+    );
+
+    if (selectedCategory) {
+      const selectedProduct = selectedCategory.components.find(
+        (component) =>
+          component instanceof Product &&
+          component.getName() === selectedProductName
+      );
+
+      if (selectedProduct) {
+        // Updating product price.
+        selectedProduct.price = newPrice;
+
+        // Creating notification/
+        const notification = document.createElement("li");
+        notification.textContent = `Product Update: ${selectedProduct.getName()}'s price updated to $${newPrice}`;
+        notificationsDisplay.appendChild(notification);
+
+        // Updating UI.
+        updateDisplay();
+
+        // Clearing input fields/
+        categorySelect.value = "";
+        productSelect.innerHTML = "<option value=''>Select a Product</option>";
+        priceInput.value = "";
+
+        Notiflix.Notify.success(
+          `${selectedProduct.getName()}'s price updated successfully!`
         );
-
-        if (selectedCategory) {
-            const selectedProduct = selectedCategory.components.find(
-                component => component instanceof Product && 
-                component.getName() === selectedProductName
-            );
-
-            if (selectedProduct) {
-                // Ürün fiyatını güncelle
-                selectedProduct.price = newPrice;
-                
-                // Notification oluştur
-                const notification = document.createElement("li");
-                notification.textContent = `Product Update: ${selectedProduct.getName()}'s price updated to $${newPrice}`;
-                notificationsDisplay.appendChild(notification);
-                
-                // UI'ı güncelle
-                updateDisplay();
-                
-                // Input alanlarını temizle
-                categorySelect.value = "";
-                productSelect.innerHTML = "<option value=''>Select a Product</option>";
-                priceInput.value = "";
-
-                Notiflix.Notify.success(`${selectedProduct.getName()}'s price updated successfully!`);
-            }
-        }
-    } else {
-        Notiflix.Notify.failure('Please fill in all fields correctly!');
+      }
     }
+  } else {
+    Notiflix.Notify.failure("Please fill in all fields correctly!");
+  }
 });
 
 // Display the inventory.

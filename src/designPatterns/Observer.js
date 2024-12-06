@@ -18,12 +18,12 @@ class StockManager {
 
   // Notifies all observers of a change in stock for each product by iterating through all observers and calling their update method.
   updateStock(productName, quantity) {
-    // Stok güncellendiğinde observers'ları bilgilendir
+    // Notify observers when stock is updated.
     this.notifyObservers(productName, quantity);
   }
 
   notifyObservers(productName, quantity) {
-    this.observers.forEach(observer => {
+    this.observers.forEach((observer) => {
       observer.update(productName, quantity);
     });
   }
@@ -32,7 +32,7 @@ class StockManager {
 // The NotificationManager class serves as an observer in the Observer pattern. It monitors stock levels and responds to low stock alerts.
 class NotificationManager {
   update(productName, quantity) {
-    // Bu metod app.js'de override edilecek
+    // This method will be overridden in app.js.
   }
 }
 
